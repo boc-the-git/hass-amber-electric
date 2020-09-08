@@ -37,8 +37,10 @@ def to_class(c: Type[T], x: Any) -> dict:
     return cast(Any, x).to_dict()
 
 
-def from_datetime(x: Any) -> datetime:
-    return dateutil.parser.parse(x)
+def from_datetime(x: Any) -> Optional[datetime]:
+    if x != None:
+        return dateutil.parser.parse(x)
+    return x
 
 
 def to_enum(c: Type[EnumT], x: Any) -> EnumT:
@@ -312,7 +314,10 @@ class VariablePricesAndRenewable:
     def from_dict(obj: Any) -> "VariablePricesAndRenewable":
         assert isinstance(obj, dict)
         period_type = PeriodType(obj.get("periodType"))
-        created_at = from_datetime(obj.get("createdAt"))
+        if obj.get("createdAt") == None:
+            created_at = ""
+        else:
+            created_at = from_datetime(obj.get("createdAt"))
         wholesale_kwh_price = from_str(obj.get("wholesaleKWHPrice"))
         usage = from_union([from_str, from_none], obj.get("usage"))
         region = from_str(obj.get("region"))
